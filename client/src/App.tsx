@@ -5,19 +5,23 @@ import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
-import UnitPage from "./pages/UnitPage";
-import ToolPage from "./pages/ToolPage";
-import ToolWorksheet from "./pages/ToolWorksheet";
+import ProfilePage from "./pages/ProfilePage";
+import BusinessFitPage from "./pages/BusinessFitPage";
+import BorrowingCapacityPage from "./pages/BorrowingCapacityPage";
+import DealMetricsPage from "./pages/DealMetricsPage";
+import ResourcesPage from "./pages/ResourcesPage";
+import DashboardPage from "./pages/DashboardPage";
 
 function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
-      <Route path="/unit/:unitId" component={UnitPage} />
-      {/* Fillable worksheet — primary tool interaction */}
-      <Route path="/tool/:toolId" component={ToolWorksheet} />
-      {/* Legacy detail view */}
-      <Route path="/unit/:unitId/tool/:toolId" component={ToolPage} />
+      <Route path="/dashboard" component={DashboardPage} />
+      <Route path="/profile" component={ProfilePage} />
+      <Route path="/business-fit" component={BusinessFitPage} />
+      <Route path="/borrowing-capacity" component={BorrowingCapacityPage} />
+      <Route path="/deal-metrics" component={DealMetricsPage} />
+      <Route path="/resources" component={ResourcesPage} />
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />
     </Switch>

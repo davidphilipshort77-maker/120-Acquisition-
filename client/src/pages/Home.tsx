@@ -1,232 +1,123 @@
-// Design: Obsidian Vault — Dark Premium Dashboard
-// Homepage: Hero with Sydney backdrop, stats bar, unit grid
-
-import Layout from "@/components/Layout";
-import { units, totalTools } from "@/lib/toolkitData";
+import { useAuth } from "@/_core/hooks/useAuth";
+import { getLoginUrl } from "@/const";
+import { ArrowRight, BarChart3, Building2, Calculator, CheckCircle2, CircleDollarSign, Link2, User } from "lucide-react";
 import { useLocation } from "wouter";
-import { ArrowRight, FileDown, Target, TrendingUp, Shield, Clock } from "lucide-react";
 
-const HERO_BG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663095779347/FQWe7gFcoPbRwtZpb2uRLi/hero-bg-5BNisbwVbcMMsWpKB36m67.webp";
-
-const phaseLabels = [
-  { phase: 'Phase 1', label: 'Diagnose & Profile', color: '#C9A84C' },
-  { phase: 'Phase 2', label: 'Clarify Direction', color: '#2A5F8F' },
-  { phase: 'Phase 3', label: 'Market Readiness', color: '#1E4A72' },
-  { phase: 'Phase 4', label: 'Execute', color: '#9A7A30' },
-  { phase: 'Phase 5', label: 'Support', color: '#1B3A5C' },
+const steps = [
+  { num: 1, icon: User, title: "My Profile", desc: "Personal background, income history, assets and liabilities", path: "/profile", color: "oklch(0.78 0.12 75)" },
+  { num: 2, icon: Building2, title: "Business Fit", desc: "What type of business suits your skills, lifestyle and goals", path: "/business-fit", color: "oklch(0.65 0.15 220)" },
+  { num: 3, icon: Calculator, title: "Borrowing Capacity", desc: "How much you can borrow — DSCR, maximum deal size, deposit", path: "/borrowing-capacity", color: "oklch(0.65 0.15 145)" },
+  { num: 4, icon: BarChart3, title: "Deal Metrics", desc: "Full deal calculator — SDE, multiples, structure, serviceability", path: "/deal-metrics", color: "oklch(0.70 0.15 30)" },
+  { num: 5, icon: Link2, title: "Resources", desc: "Curated links to ASIC, Fair Work, Judo Bank, brokers and tools", path: "/resources", color: "oklch(0.68 0.12 280)" },
 ];
 
-const stats = [
-  { icon: Target, value: '30', label: 'Tools & Templates', sub: 'Across 10 units' },
-  { icon: TrendingUp, value: 'AU', label: 'Market Specific', sub: 'ASIC · Fair Work · ATO · Judo Bank' },
-  { icon: Shield, value: '5', label: 'Program Phases', sub: 'Diagnose to Day Zero' },
-  { icon: Clock, value: '120%', label: 'Program Pathway 3', sub: 'Business Acquisition' },
+const facts = [
+  "Designed for executives earning $300k–$800k for 10+ years",
+  "Aligned with the 120% Business Acquisition program",
+  "Australian market — ASIC, Fair Work, ATO, Judo Bank",
+  "Judo Bank DSCR framework built in",
 ];
 
 export default function Home() {
   const [, navigate] = useLocation();
+  const { isAuthenticated } = useAuth();
 
   return (
-    <Layout>
-      {/* Hero Section */}
-      <section
-        className="relative min-h-[420px] flex items-end overflow-hidden"
-        style={{
-          backgroundImage: `url(${HERO_BG})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center 40%',
-        }}
-      >
-        {/* Gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#0D1B2A]/40 via-[#0D1B2A]/60 to-[#0D1B2A]" />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#0D1B2A]/80 to-transparent" />
-
-        <div className="relative z-10 px-8 pb-12 pt-20 max-w-4xl">
-          <div className="flex items-center gap-2 mb-4">
-            <div className="h-px w-8 bg-[#C9A84C]" />
-            <span className="text-[#C9A84C] text-xs font-semibold tracking-widest uppercase">
-              120% Business Acquisition · Australian Edition
+    <div className="min-h-screen bg-background">
+      {/* Hero */}
+      <div className="relative overflow-hidden border-b border-border">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent pointer-events-none" />
+        <div className="max-w-4xl mx-auto px-6 py-16 md:py-24">
+          <div className="flex items-center gap-2 mb-6">
+            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
+              <CircleDollarSign size={16} className="text-primary-foreground" />
+            </div>
+            <span className="text-primary text-xs font-semibold tracking-widest uppercase">
+              120% Program · Pathway 3 · Business Acquisition
             </span>
           </div>
 
-          <h1
-            className="text-5xl lg:text-6xl font-bold text-white leading-tight mb-4"
-            style={{ fontFamily: 'Cormorant Garamond, serif' }}
-          >
-            The Complete
-            <span className="block text-[#C9A84C]">Acquisition Toolkit</span>
+          <h1 className="font-serif text-4xl md:text-5xl font-bold text-foreground leading-tight mb-4">
+            Your Business Acquisition
+            <span className="block text-primary">Pathway Tool</span>
           </h1>
 
-          <p className="text-white/70 text-lg max-w-2xl leading-relaxed mb-8">
-            30 tools, templates, and frameworks tailored for premium corporate executives
-            transitioning from $300k–$800k roles into SME ownership through the 120% Business
-            Acquisition pathway.
+          <p className="text-muted-foreground text-lg max-w-2xl leading-relaxed mb-8">
+            A simple, guided tool to help you work through whether buying a business is right for you,
+            what type of business suits you, how much you can borrow, and how to structure a deal —
+            all tailored to the Australian market.
           </p>
 
-          <div className="flex flex-wrap gap-3">
+          <div className="flex flex-wrap gap-3 mb-10">
             <button
-              onClick={() => navigate('/unit/1')}
-              className="flex items-center gap-2 px-6 py-3 bg-[#C9A84C] text-[#0D1B2A] font-semibold rounded-lg hover:bg-[#F5E6C8] transition-colors duration-200"
+              onClick={() => navigate(isAuthenticated ? "/dashboard" : "/profile")}
+              className="flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground font-semibold rounded-lg hover:bg-primary/90 transition-colors"
             >
-              Start with Unit 1
+              {isAuthenticated ? "Go to Dashboard" : "Start Your Assessment"}
               <ArrowRight size={16} />
             </button>
-            <a
-              href="/120pct_MSA_Toolkit_AU.xlsx"
-              className="flex items-center gap-2 px-6 py-3 bg-white/10 text-white border border-white/20 font-medium rounded-lg hover:bg-white/15 transition-colors duration-200"
-              onClick={(e) => { e.preventDefault(); alert('Download the Excel workbook from the chat attachments above.'); }}
-            >
-              <FileDown size={16} />
-              Download Excel Workbook
-            </a>
-          </div>
-        </div>
-      </section>
-
-      {/* Stats Bar */}
-      <section className="border-b border-white/8 bg-[#0D1B2A]">
-        <div className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-y lg:divide-y-0 divide-white/8">
-          {stats.map(({ icon: Icon, value, label, sub }) => (
-            <div key={label} className="px-6 py-5 flex items-center gap-4">
-              <div className="w-10 h-10 rounded-lg bg-[#C9A84C]/10 border border-[#C9A84C]/20 flex items-center justify-center shrink-0">
-                <Icon size={18} className="text-[#C9A84C]" />
-              </div>
-              <div>
-                <div className="text-2xl font-bold text-white" style={{ fontFamily: 'Cormorant Garamond, serif' }}>{value}</div>
-                <div className="text-white/70 text-sm font-medium">{label}</div>
-                <div className="text-white/35 text-xs">{sub}</div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Client Profile Banner */}
-      <section className="px-8 py-6 border-b border-white/8 bg-[#1B3A5C]/20">
-        <div className="max-w-5xl">
-          <div className="flex items-start gap-4">
-            <div className="w-1 h-full min-h-[60px] bg-[#C9A84C] rounded-full shrink-0" />
-            <div>
-              <h2 className="text-white font-semibold mb-1" style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.1rem' }}>
-                Designed for Premium Corporate Executives
-              </h2>
-              <p className="text-white/60 text-sm leading-relaxed max-w-3xl">
-                You have earned $300k–$800k for 10+ consecutive years. You have been made redundant.
-                You are not a startup founder — you are an operator and a leader. This toolkit translates
-                your institutional-grade skills into the language of Australian SME acquisition, aligned
-                with the 120% program's five-phase journey from profiling to Day Zero.
-              </p>
-              <div className="flex flex-wrap gap-2 mt-3">
-                {['ASIC & PPSR Compliance', 'Judo Bank DSCR Framework', 'Fair Work AU', 'ATO Obligations', 'Comparable.com.au Multiples', 'IBISWorld Benchmarks'].map(tag => (
-                  <span key={tag} className="text-xs px-2 py-1 rounded bg-white/5 text-white/50 border border-white/10">
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Phase Journey */}
-      <section className="px-8 py-6 border-b border-white/8">
-        <h2 className="text-white/50 text-xs font-semibold tracking-widest uppercase mb-4">
-          The 5-Phase 120% Journey
-        </h2>
-        <div className="flex flex-wrap gap-2">
-          {phaseLabels.map(({ phase, label, color }, i) => (
-            <div key={phase} className="flex items-center gap-2">
-              <div
-                className="flex items-center gap-2 px-3 py-1.5 rounded-lg border text-sm"
-                style={{ borderColor: `${color}40`, backgroundColor: `${color}10`, color }}
+            {!isAuthenticated && (
+              <button
+                onClick={() => { window.location.href = getLoginUrl(); }}
+                className="flex items-center gap-2 px-6 py-3 bg-card text-foreground border border-border font-medium rounded-lg hover:bg-accent transition-colors"
               >
-                <span className="font-mono text-xs opacity-70">{phase}</span>
-                <span className="font-medium">{label}</span>
+                Sign in to save progress
+              </button>
+            )}
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            {facts.map(f => (
+              <div key={f} className="flex items-center gap-2 text-sm text-muted-foreground">
+                <CheckCircle2 size={14} className="text-primary shrink-0" />
+                {f}
               </div>
-              {i < phaseLabels.length - 1 && (
-                <ArrowRight size={14} className="text-white/20 shrink-0" />
-              )}
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </section>
+      </div>
 
-      {/* Units Grid */}
-      <section className="px-8 py-8">
-        <div className="flex items-center justify-between mb-6">
-          <h2
-            className="text-2xl font-bold text-white"
-            style={{ fontFamily: 'Cormorant Garamond, serif' }}
-          >
-            All 10 Units
-          </h2>
-          <span className="text-white/40 text-sm">{totalTools} tools total</span>
-        </div>
+      {/* Steps */}
+      <div className="max-w-4xl mx-auto px-6 py-12">
+        <h2 className="font-serif text-2xl font-semibold text-foreground mb-2">The 5-Step Journey</h2>
+        <p className="text-muted-foreground text-sm mb-8">Work through each step in order. Your answers build on each other.</p>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-          {units.map((unit) => (
+        <div className="space-y-3">
+          {steps.map(({ num, icon: Icon, title, desc, path, color }) => (
             <button
-              key={unit.id}
-              onClick={() => navigate(`/unit/${unit.id}`)}
-              className="group text-left p-5 rounded-xl border border-white/8 bg-[#1B3A5C]/10 hover:bg-[#1B3A5C]/25 hover:border-white/15 transition-all duration-200"
+              key={num}
+              onClick={() => navigate(path)}
+              className="w-full group flex items-center gap-4 p-5 rounded-xl border border-border bg-card hover:border-primary/40 hover:bg-accent/30 transition-all duration-200 text-left"
             >
-              <div className="flex items-start justify-between mb-3">
-                <div className="flex items-center gap-3">
-                  <span className="text-2xl">{unit.icon}</span>
-                  <div>
-                    <div className="text-white/30 text-xs font-mono">Unit {unit.id}</div>
-                    <h3
-                      className="text-white font-semibold text-base leading-tight"
-                      style={{ fontFamily: 'Cormorant Garamond, serif' }}
-                    >
-                      {unit.title}
-                    </h3>
-                  </div>
-                </div>
-                <ArrowRight
-                  size={16}
-                  className="text-white/20 group-hover:text-[#C9A84C] group-hover:translate-x-1 transition-all duration-200 mt-1 shrink-0"
-                />
+              <div
+                className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 font-mono font-bold text-sm"
+                style={{ backgroundColor: `${color}20`, color }}
+              >
+                {num}
               </div>
-
-              <p className="text-white/50 text-sm mb-3">{unit.subtitle}</p>
-
-              <div className="flex items-center justify-between">
-                <div className="flex flex-wrap gap-1">
-                  {unit.tools.map((tool) => (
-                    <span
-                      key={tool.id}
-                      className="text-xs px-1.5 py-0.5 rounded bg-white/5 text-white/30 font-mono"
-                    >
-                      T{tool.id}
-                    </span>
-                  ))}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-0.5">
+                  <Icon size={14} style={{ color }} />
+                  <span className="font-semibold text-foreground text-sm">{title}</span>
                 </div>
-                <span
-                  className="text-xs px-2 py-0.5 rounded-full"
-                  style={{
-                    backgroundColor: `${unit.color}20`,
-                    color: unit.color,
-                    border: `1px solid ${unit.color}40`
-                  }}
-                >
-                  {unit.phase.split(':')[0]}
-                </span>
+                <p className="text-muted-foreground text-xs leading-relaxed">{desc}</p>
               </div>
+              <ArrowRight size={16} className="text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all shrink-0" />
             </button>
           ))}
         </div>
-      </section>
+      </div>
 
-      {/* Disclaimer */}
-      <section className="px-8 py-6 border-t border-white/8">
-        <p className="text-white/25 text-xs leading-relaxed max-w-4xl">
-          <strong className="text-white/40">Disclaimer:</strong> All templates, checklists, and financial models in this toolkit are for educational and reference purposes only.
-          Always engage qualified Australian legal, financial, and tax advisors before executing any business acquisition.
-          Judo Bank and NAB lending criteria are indicative and subject to change. Fair Work and ATO obligations must be verified with relevant authorities.
-          Source: Contrarian Thinking Main Street Accelerator · 120% Offering Pack (Judo Bank) · Australian Market Edition.
-        </p>
-      </section>
-    </Layout>
+      {/* Footer note */}
+      <div className="max-w-4xl mx-auto px-6 pb-12">
+        <div className="p-4 rounded-lg bg-muted/30 border border-border">
+          <p className="text-muted-foreground text-xs leading-relaxed">
+            <strong className="text-foreground/60">Disclaimer:</strong> All tools and calculators in this platform are for educational and reference purposes only.
+            Always engage qualified Australian legal, financial, and tax advisors before executing any business acquisition.
+            Judo Bank and NAB lending criteria are indicative and subject to change.
+          </p>
+        </div>
+      </div>
+    </div>
   );
 }
