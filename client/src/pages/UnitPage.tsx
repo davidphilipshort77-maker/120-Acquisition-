@@ -108,7 +108,7 @@ export default function UnitPage() {
             return (
               <button
                 key={tool.id}
-                onClick={() => navigate(`/unit/${unit.id}/tool/${tool.id}`)}
+                onClick={() => navigate(`/tool/${tool.id}`)}
                 className="group text-left p-6 rounded-xl border border-white/8 bg-[#1B3A5C]/10 hover:bg-[#1B3A5C]/25 hover:border-white/15 transition-all duration-200"
               >
                 <div className="flex items-start justify-between mb-3">
