@@ -19,6 +19,6 @@
 
 ## GitHub & Deployment
 - [x] GitHub remote connected: https://github.com/davidphilipshort77-maker/120-Acquisition-.git
-- [ ] Push latest code to GitHub
-- [ ] Publish via Manus UI (click Publish button)
-- [ ] Optional: Vercel deployment guide
+- [x] Push latest code to GitHub (commit 5334575)
+- [x] Publish via Manus UI (click Publish button — checkpoint 5334575a ready)
+- [x] Optional: Vercel deployment guide (provided in delivery message)

@@ -4,7 +4,58 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
 import { toast } from "sonner";
 import { useState } from "react";
-import { Plus, Trash2, ChevronDown, ChevronUp } from "lucide-react";
+import { Plus, Trash2, ChevronDown, ChevronUp, X, CheckCircle2 } from "lucide-react";
+import { dealMetricsMenus, auIndustryMultiples } from "@/lib/dealMetricsData";
+
+// ── Multi-Select Tag Component ───────────────────────────────────────────────
+function MultiSelectTag({
+  label, options, selected, onChange,
+}: {
+  label: string;
+  options: string[];
+  selected: string[];
+  onChange: (vals: string[]) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const toggle = (opt: string) => {
+    onChange(selected.includes(opt) ? selected.filter(s => s !== opt) : [...selected, opt]);
+  };
+  return (
+    <div className="space-y-1">
+      <label className="block text-xs text-muted-foreground">{label}</label>
+      {selected.length > 0 && (
+        <div className="flex flex-wrap gap-1 mb-1">
+          {selected.map(s => (
+            <span key={s} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-primary/15 text-primary border border-primary/30">
+              {s}
+              <button onClick={() => toggle(s)}><X size={10} /></button>
+            </span>
+          ))}
+        </div>
+      )}
+      <div className="relative">
+        <button type="button" onClick={() => setOpen(!open)}
+          className="w-full flex items-center justify-between px-3 py-2 rounded-lg bg-input border border-border text-sm text-muted-foreground hover:border-primary/40 transition-colors">
+          <span>{selected.length === 0 ? "Select options…" : `${selected.length} selected`}</span>
+          {open ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+        </button>
+        {open && (
+          <div className="absolute z-50 mt-1 w-full max-h-48 overflow-y-auto rounded-lg bg-card border border-border shadow-xl">
+            {options.map(opt => (
+              <button key={opt} type="button" onClick={() => toggle(opt)}
+                className={`w-full text-left px-3 py-2 text-sm flex items-center gap-2 hover:bg-accent/20 transition-colors ${selected.includes(opt) ? "text-primary" : "text-foreground"}`}>
+                <span className={`w-3.5 h-3.5 rounded border flex items-center justify-center shrink-0 ${selected.includes(opt) ? "bg-primary border-primary" : "border-border"}`}>
+                  {selected.includes(opt) && <CheckCircle2 size={10} className="text-primary-foreground" />}
+                </span>
+                {opt}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
 
 type Deal = {
   id?: number;
@@ -15,6 +66,14 @@ type Deal = {
   sellerFinanceAmount: string; sellerFinanceTerm: number; sellerFinanceRate: string;
   loanTerm: number; interestRate: string; annualDebtService: string; dscr: string;
   workingCapitalRequired: string; notes: string; status: "draft" | "active" | "closed" | "passed";
+  // Deal classification
+  whyBuying: string[]; idealPurchaseStructure: string[]; purchaseStake: string;
+  dealStructure: string; dealFunding: string[]; overallMultiple: string;
+  completionDateMultiple: string; futureIntentions: string[]; integration: string;
+  mainSynergy: string[]; postDealKPIs: string[]; shareholderMetrics: string[];
+  industryTarget: string[]; marketFocus: string[]; customerBase: string[]; location: string[];
+  businessMetrics: string[]; businessCharacteristics: string[]; scalable: string[];
+  operationalCharacteristics: string[]; revenueType: string[]; keyCycles: string[];
 };
 
 const emptyDeal = (): Deal => ({
@@ -25,6 +84,13 @@ const emptyDeal = (): Deal => ({
   sellerFinanceAmount: "0", sellerFinanceTerm: 3, sellerFinanceRate: "5",
   loanTerm: 7, interestRate: "8.5", annualDebtService: "", dscr: "",
   workingCapitalRequired: "", notes: "", status: "draft",
+  whyBuying: [], idealPurchaseStructure: [], purchaseStake: "",
+  dealStructure: "", dealFunding: [], overallMultiple: "",
+  completionDateMultiple: "", futureIntentions: [], integration: "",
+  mainSynergy: [], postDealKPIs: [], shareholderMetrics: [],
+  industryTarget: [], marketFocus: [], customerBase: [], location: [],
+  businessMetrics: [], businessCharacteristics: [], scalable: [],
+  operationalCharacteristics: [], revenueType: [], keyCycles: [],
 });
 
 const AU_INDUSTRIES = [
@@ -67,7 +133,9 @@ function DealCard({ deal, onSave, onDelete }: {
 }) {
   const [d, setD] = useState<Deal>(deal);
   const [open, setOpen] = useState(!deal.id);
-  const set = (k: keyof Deal) => (v: string | number) => setD(prev => ({ ...prev, [k]: v }));
+  const [activeTab, setActiveTab] = useState<"financials" | "classification">("financials");
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const set = (k: keyof Deal) => (v: any) => setD((prev: Deal) => ({ ...prev, [k]: v }));
 
   // Auto-calculations
   const ebitda = parseFloat(d.ebitda) || 0;
@@ -155,7 +223,7 @@ function DealCard({ deal, onSave, onDelete }: {
                   <div className="relative">
                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-xs">$</span>
                     <input
-                      value={(d as Record<string, string | number>)[k] as string}
+                      value={(d as unknown as Record<string, string>)[k]}
                       onChange={e => set(k as keyof Deal)(e.target.value)}
                       placeholder="0"
                       className="w-full rounded-lg border border-border bg-input text-foreground text-sm pl-6 pr-3 py-2 focus:outline-none focus:ring-1 focus:ring-primary"
@@ -183,7 +251,7 @@ function DealCard({ deal, onSave, onDelete }: {
                   <label className="block text-xs text-muted-foreground mb-1">{label}</label>
                   <div className="relative">
                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-xs">$</span>
-                    <input value={(d as Record<string, string | number>)[k] as string} onChange={e => set(k as keyof Deal)(e.target.value)} placeholder="0" className="w-full rounded-lg border border-border bg-input text-foreground text-sm pl-6 pr-3 py-2 focus:outline-none focus:ring-1 focus:ring-primary" />
+                    <input value={(d as unknown as Record<string, string>)[k]} onChange={e => set(k as keyof Deal)(e.target.value)} placeholder="0" className="w-full rounded-lg border border-border bg-input text-foreground text-sm pl-6 pr-3 py-2 focus:outline-none focus:ring-1 focus:ring-primary" />
                   </div>
                 </div>
               ))}
@@ -258,6 +326,99 @@ function DealCard({ deal, onSave, onDelete }: {
             </div>
           )}
 
+          {/* Tab switcher */}
+          <div className="flex gap-1 p-1 bg-muted/30 rounded-lg w-fit">
+            {(["financials", "classification"] as const).map(tab => (
+              <button key={tab} type="button" onClick={() => setActiveTab(tab)}
+                className={`px-4 py-1.5 rounded-md text-xs font-medium transition-colors ${
+                  activeTab === tab ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
+                }`}>
+                {tab === "financials" ? "Financials" : "Deal Classification"}
+              </button>
+            ))}
+          </div>
+
+          {activeTab === "classification" && (
+            <div className="space-y-6">
+              {/* Industry benchmark */}
+              {d.industry && auIndustryMultiples[d.industry] && (
+                <div className="p-3 rounded-lg bg-primary/5 border border-primary/20 text-xs">
+                  <span className="text-primary font-semibold">AU Benchmark — {d.industry}: </span>
+                  <span className="text-muted-foreground">{auIndustryMultiples[d.industry].low}x – {auIndustryMultiples[d.industry].high}x EBITDA</span>
+                </div>
+              )}
+              <div>
+                <h3 className="text-xs text-muted-foreground uppercase tracking-widest mb-3">Intentions & Deal Structure</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <MultiSelectTag label="Why Are We Buying?" options={dealMetricsMenus.whyBuying} selected={d.whyBuying} onChange={v => setD(p => ({...p, whyBuying: v}))} />
+                  <MultiSelectTag label="Ideal Purchase Structure" options={dealMetricsMenus.idealPurchaseStructure} selected={d.idealPurchaseStructure} onChange={v => setD(p => ({...p, idealPurchaseStructure: v}))} />
+                  <div className="space-y-1">
+                    <label className="block text-xs text-muted-foreground">Purchase Stake</label>
+                    <select value={d.purchaseStake} onChange={e => setD(p => ({...p, purchaseStake: e.target.value}))} className="w-full rounded-lg border border-border bg-input text-foreground text-sm px-3 py-2 focus:outline-none focus:ring-1 focus:ring-primary">
+                      <option value="">— Select —</option>
+                      {dealMetricsMenus.purchaseStake.map(o => <option key={o} value={o} className="bg-card">{o}</option>)}
+                    </select>
+                  </div>
+                  <div className="space-y-1">
+                    <label className="block text-xs text-muted-foreground">Deal Structure</label>
+                    <select value={d.dealStructure} onChange={e => setD(p => ({...p, dealStructure: e.target.value}))} className="w-full rounded-lg border border-border bg-input text-foreground text-sm px-3 py-2 focus:outline-none focus:ring-1 focus:ring-primary">
+                      <option value="">— Select —</option>
+                      {dealMetricsMenus.dealStructure.map(o => <option key={o} value={o} className="bg-card">{o}</option>)}
+                    </select>
+                  </div>
+                  <MultiSelectTag label="Deal Funding" options={dealMetricsMenus.dealFunding} selected={d.dealFunding} onChange={v => setD(p => ({...p, dealFunding: v}))} />
+                  <div className="space-y-1">
+                    <label className="block text-xs text-muted-foreground">Overall Multiple Target</label>
+                    <select value={d.overallMultiple} onChange={e => setD(p => ({...p, overallMultiple: e.target.value}))} className="w-full rounded-lg border border-border bg-input text-foreground text-sm px-3 py-2 focus:outline-none focus:ring-1 focus:ring-primary">
+                      <option value="">— Select —</option>
+                      {dealMetricsMenus.overallMultiple.map(o => <option key={o} value={o} className="bg-card">{o}</option>)}
+                    </select>
+                  </div>
+                  <div className="space-y-1">
+                    <label className="block text-xs text-muted-foreground">Completion Date Multiple</label>
+                    <select value={d.completionDateMultiple} onChange={e => setD(p => ({...p, completionDateMultiple: e.target.value}))} className="w-full rounded-lg border border-border bg-input text-foreground text-sm px-3 py-2 focus:outline-none focus:ring-1 focus:ring-primary">
+                      <option value="">— Select —</option>
+                      {dealMetricsMenus.completionDateMultiple.map(o => <option key={o} value={o} className="bg-card">{o}</option>)}
+                    </select>
+                  </div>
+                  <MultiSelectTag label="Future Intentions" options={dealMetricsMenus.futureIntentions} selected={d.futureIntentions} onChange={v => setD(p => ({...p, futureIntentions: v}))} />
+                  <div className="space-y-1">
+                    <label className="block text-xs text-muted-foreground">Integration Approach</label>
+                    <select value={d.integration} onChange={e => setD(p => ({...p, integration: e.target.value}))} className="w-full rounded-lg border border-border bg-input text-foreground text-sm px-3 py-2 focus:outline-none focus:ring-1 focus:ring-primary">
+                      <option value="">— Select —</option>
+                      {dealMetricsMenus.integration.map(o => <option key={o} value={o} className="bg-card">{o}</option>)}
+                    </select>
+                  </div>
+                  <MultiSelectTag label="Main Synergy" options={dealMetricsMenus.mainSynergy} selected={d.mainSynergy} onChange={v => setD(p => ({...p, mainSynergy: v}))} />
+                  <MultiSelectTag label="Post-Deal KPIs" options={dealMetricsMenus.postDealKPIs} selected={d.postDealKPIs} onChange={v => setD(p => ({...p, postDealKPIs: v}))} />
+                  <MultiSelectTag label="Shareholder Metrics" options={dealMetricsMenus.shareholderMetrics} selected={d.shareholderMetrics} onChange={v => setD(p => ({...p, shareholderMetrics: v}))} />
+                </div>
+              </div>
+              <div>
+                <h3 className="text-xs text-muted-foreground uppercase tracking-widest mb-3">Externals — Market & Customer</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <MultiSelectTag label="Industry Target" options={dealMetricsMenus.industryTarget} selected={d.industryTarget} onChange={v => setD(p => ({...p, industryTarget: v}))} />
+                  <MultiSelectTag label="Market Focus" options={dealMetricsMenus.marketFocus} selected={d.marketFocus} onChange={v => setD(p => ({...p, marketFocus: v}))} />
+                  <MultiSelectTag label="Customer Base" options={dealMetricsMenus.customerBase} selected={d.customerBase} onChange={v => setD(p => ({...p, customerBase: v}))} />
+                  <MultiSelectTag label="Location" options={dealMetricsMenus.location} selected={d.location} onChange={v => setD(p => ({...p, location: v}))} />
+                </div>
+              </div>
+              <div>
+                <h3 className="text-xs text-muted-foreground uppercase tracking-widest mb-3">Business Internals</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <MultiSelectTag label="Business Metrics" options={dealMetricsMenus.businessMetrics} selected={d.businessMetrics} onChange={v => setD(p => ({...p, businessMetrics: v}))} />
+                  <MultiSelectTag label="Business Characteristics" options={dealMetricsMenus.businessCharacteristics} selected={d.businessCharacteristics} onChange={v => setD(p => ({...p, businessCharacteristics: v}))} />
+                  <MultiSelectTag label="Scalable" options={dealMetricsMenus.scalable} selected={d.scalable} onChange={v => setD(p => ({...p, scalable: v}))} />
+                  <MultiSelectTag label="Operational Characteristics" options={dealMetricsMenus.operationalCharacteristics} selected={d.operationalCharacteristics} onChange={v => setD(p => ({...p, operationalCharacteristics: v}))} />
+                  <MultiSelectTag label="Revenue Type" options={dealMetricsMenus.revenue} selected={d.revenueType} onChange={v => setD(p => ({...p, revenueType: v}))} />
+                  <MultiSelectTag label="Key Cycles" options={dealMetricsMenus.keyCycles} selected={d.keyCycles} onChange={v => setD(p => ({...p, keyCycles: v}))} />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === "financials" && (
+          <>
           {/* Notes & status */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div className="sm:col-span-2">
@@ -274,9 +435,11 @@ function DealCard({ deal, onSave, onDelete }: {
               </select>
             </div>
           </div>
+          </>
+          )}
 
-          {/* Actions */}
-          <div className="flex items-center gap-3 pt-1">
+          {/* Actions — always visible */}
+          <div className="flex items-center gap-3 pt-1 border-t border-border mt-2">
             <button onClick={() => onSave({ ...d, depositAmount: String(depositAmt), bankLoanAmount: String(bankLoan), annualDebtService: String(totalDebt), dscr: String(dscrVal) })} className="px-5 py-2 bg-primary text-primary-foreground text-sm font-semibold rounded-lg hover:bg-primary/90 transition-colors">
               Save Deal
             </button>
@@ -356,6 +519,13 @@ export default function DealMetricsPage() {
         workingCapitalRequired: d.workingCapitalRequired || "",
         notes: d.notes || "",
         status: (d.status as "draft" | "active" | "closed" | "passed") || "draft",
+        whyBuying: [], idealPurchaseStructure: [], purchaseStake: "",
+        dealStructure: "", dealFunding: [], overallMultiple: "",
+        completionDateMultiple: "", futureIntentions: [], integration: "",
+        mainSynergy: [], postDealKPIs: [], shareholderMetrics: [],
+        industryTarget: [], marketFocus: [], customerBase: [], location: [],
+        businessMetrics: [], businessCharacteristics: [], scalable: [],
+        operationalCharacteristics: [], revenueType: [], keyCycles: [],
       }))
     : localDeals;
 
